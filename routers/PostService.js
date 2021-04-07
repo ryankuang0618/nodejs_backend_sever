@@ -6,6 +6,6 @@ router.get("/", function(req, res){
     res.send("Hello World");
 });
 
-router.post("/", PostController.GetPostData);
+router.post("/", PostController.GetDBData);
 
 module.exports = router;
