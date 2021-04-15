@@ -7,6 +7,7 @@ exports.GetALLPostData = function(req, res) {
         res.json(result);
     })
 };
+
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
     const users = new Users();
@@ -14,6 +15,7 @@ exports.InsertPostData = function(req, res) {
     articles.setContent(req.body.content);
     articles.setTime(req.body.time);
     PostDao.InsertPostDataToDB(articles).then(result =>{
+
         res.end(result);
 
     })

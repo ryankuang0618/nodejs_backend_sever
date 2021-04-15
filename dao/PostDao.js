@@ -22,11 +22,12 @@ async function InsertPostDataToDB(articles){
             .input('Article_content', sql.NVarChar, articles.getContent())
             .input('Article_time', sql.NVarChar, articles.getTime())
             .input('User_Id', sql.Int, 1)
-            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id) VALUES (@Article_title, @Article_content, @Article_time, @User_Id)")
-        console.dir(req);
+            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id) VALUES (@Article_title, @Article_content, @Article_time, @User_Id) SELECT SCOPE_IDENTITY() AS id;")
+        console.log(req);
         return 'success';
     }catch(err){
         console.log(err);
+
         return 'error';
     }
     

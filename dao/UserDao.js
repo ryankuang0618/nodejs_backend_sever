@@ -23,12 +23,8 @@ async function CheckLoginIsvaild(users){
         let req = await pool.request()
             .input('User_email', sql.NVarChar, users.getEmail())
             .input('User_password', sql.NVarChar, users.getPassword())
-            .query("SELECT Count(User_id) AS userCount From [User] Where User_email = @User_email AND User_password = @User_password;")
-        if(req.recordsets[0][0].userCount > 0){
-            return 'success';
-        }else{
-            return 'error';
-        }
+            .query("SELECT * From [User] Where User_email = @User_email AND User_password = @User_password;")
+        return req.recordsets;
         
     }catch(err){
         console.log(err);
