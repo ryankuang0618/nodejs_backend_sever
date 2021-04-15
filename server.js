@@ -6,8 +6,11 @@ server.use(bodyParser.json());
 
 //Import Routes
 const postsRoute = require('./routers/PostService');
+const usersRoute = require('./routers/UserService');
 
 server.use('/posts',postsRoute);
+
+server.use('/users',usersRoute);
 
 //Iisten
 server.listen(PORT,function(){

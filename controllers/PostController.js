@@ -1,15 +1,20 @@
-var Posts = require('../models/Posts');
+var Articles = require('../models/Articles');
+var Users = require('../models/Users');
 var PostDao = require('../dao/PostDao');
 
-exports.GetPostData = function(req, res) {
-    const posts = new Posts();
-    posts.setTitle(req.body.title);
-    posts.setArticle(req.body.article);
-    posts.setAuthor(req.body.author);
-    res.json(posts);
-};
-exports.GetDBData = function(req, res) {
+exports.GetALLPostData = function(req, res) {
     PostDao.GetPostDataFromDB().then(result =>{
         res.json(result);
+    })
+};
+exports.InsertPostData = function(req, res) {
+    const articles = new Articles();
+    const users = new Users();
+    articles.setTitle(req.body.title);
+    articles.setContent(req.body.content);
+    articles.setTime(req.body.time);
+    PostDao.InsertPostDataToDB(articles).then(result =>{
+        res.end(result);
+
     })
 };

@@ -6,8 +6,10 @@ const config = {
     port:1433,
     options: {
       cryptoCredentialsDetails: {
-          minVersion: 'TLSv1'
-      }
+          minVersion: 'TLSv1',
+      },
+      enableArithAbort: true,
+      encrypt: true
   }
 }
 module.exports = config;
