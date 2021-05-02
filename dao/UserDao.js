@@ -14,7 +14,7 @@ async function InsertUserData(users){
         return 'success';
     }catch(err){
         console.log(err);
-        return 'error';
+        return 'failed';
     }
 }
 async function CheckLoginIsvaild(users){
@@ -24,11 +24,11 @@ async function CheckLoginIsvaild(users){
             .input('User_email', sql.NVarChar, users.getEmail())
             .input('User_password', sql.NVarChar, users.getPassword())
             .query("SELECT * From [User] Where User_email = @User_email AND User_password = @User_password;")
-        return req.recordsets;
+        return req.recordsets[0][0];
         
     }catch(err){
         console.log(err);
-        return 'error';
+        return 'failed';
     }
 }
 

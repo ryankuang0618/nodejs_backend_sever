@@ -4,9 +4,15 @@ const router = express.Router();
 
 
 
-router.get("/", PostController.GetALLPostData);
+router.get("/GetALLPostData", PostController.GetALLPostData);
 
-router.post("/", PostController.InsertPostData);
+router.get("/GetTopicData", PostController.GetTopicData);
+
+router.post("/InsertPostData", PostController.InsertPostData);
+
+router.post("/InsertVoteCount", PostController.InsertVoteCount);
+
+
 
 
 

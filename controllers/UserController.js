@@ -18,8 +18,8 @@ exports.CheckLoginIsvaild = function(req, res) {
     users.setEmail(req.body.email);
     users.setPassword(req.body.password);
     UserDao.CheckLoginIsvaild(users).then(result =>{
-
-        res.json(result);
+        
+        res.send(result);
 
     });
 };

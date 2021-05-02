@@ -1,16 +1,16 @@
 const express = require("express");
 const server = express();
 const bodyParser = require('body-parser');
-const PORT = 3000;
+const PORT = 8080;
 server.use(bodyParser.json());
 
 //Import Routes
 const postsRoute = require('./routers/PostService');
 const usersRoute = require('./routers/UserService');
 
-server.use('/posts',postsRoute);
+server.use('/api/posts',postsRoute);
 
-server.use('/users',usersRoute);
+server.use('/api/users',usersRoute);
 
 //Iisten
 server.listen(PORT,function(){
