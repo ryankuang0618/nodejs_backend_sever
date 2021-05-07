@@ -16,14 +16,42 @@ async function GetPostDataFromDB(){
     }
 };
 
+async function GetDataBase(sqll){
+    try{
+        let pool = await sql.connect(config);
+        let posts = await pool.request().query(sqll);
+        console.log("success");
+        return posts.recordsets;
+    }catch(error){
+
+        console.log(error);
+        return "failed";
+
+    }
+}
+
 async function GetTopicDataFromDB(articles){
     try{
         let pool = await sql.connect(config);
-        let req = await pool.request()
-            .input('Article_Id', sql.Int, articles.getId())
-            .query("SELECT Article.Article_title, Article.Article_content, Article.Article_time, Topic.Topic_title, Selection.Selection_Id, Selection.Selection_content, Selection.Selection_count  FROM Article JOIN Topic ON Article.Article_Id = Topic.Article_Id JOIN Selection ON Selection.Topic_Id = Topic.Topic_Id WHERE Topic.Article_Id = @Article_Id")
-        console.log(req);
-        return req.recordset;
+        let reqArticle = await pool.request()
+                .input('Article_Id', sql.Int, articles.getId())
+                .query("SELECT * FROM Article  WHERE Article_Id = @Article_Id")
+        let reqUser = await pool.request()
+            .input('User_Id', sql.Int, reqArticle.recordset[0].User_Id)
+            .query("SELECT * FROM [User] WHERE User_Id = @User_Id")
+        let reqTopic = await pool.request()
+                .input('Article_Id', sql.Int, articles.getId())
+                .query("SELECT * FROM Topic  WHERE Article_Id = @Article_Id")
+        let SelectionArray = [];
+        for(let t = 0 ; t < reqTopic.recordset.length ; t ++){
+            let reqSelection = await pool.request()
+                .input('Topic_Id', sql.Int, reqTopic.recordset[t].Topic_Id)
+                .query("SELECT * FROM Selection WHERE Topic_Id = @Topic_Id")
+            SelectionArray.push(reqSelection.recordset)
+        }
+
+        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Topic:reqTopic.recordset, Selection:SelectionArray};
+        return resArray;
 
     }catch(error){
 
@@ -34,7 +62,7 @@ async function GetTopicDataFromDB(articles){
 
 };
 
-async function InsertPostDataToDB(articles, topics, users, selectionArray){
+async function InsertPostDataToDB(articles, users, voteArray){
     try{
         //console.log(selectionArray);
         let pool = await sql.connect(config);
@@ -42,22 +70,24 @@ async function InsertPostDataToDB(articles, topics, users, selectionArray){
             .input('Article_title', sql.NVarChar, articles.getTitle())
             .input('Article_content', sql.NVarChar, articles.getContent())
             .input('Article_time', sql.NVarChar, articles.getTime())
-            .input('User_Id', sql.Int, 1)
+            .input('User_Id', sql.Int, users.getId())
             .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id) VALUES (@Article_title, @Article_content, @Article_time, @User_Id) SELECT SCOPE_IDENTITY() AS id;")
         let insertPostsNum = req.recordset[0].id;
-        let req2 = await pool.request()
-            .input('Topic_title', sql.NVarChar, topics.getTitle())
-            .input('Article_Id', sql.Int, insertPostsNum)
-            .query("INSERT INTO Topic (Topic_title, Article_Id) VALUES (@Topic_title, @Article_Id) SELECT SCOPE_IDENTITY() AS id;")
-        let insertTopicNum = req2.recordset[0].id;
-        for(let i = 0 ; i < selectionArray.length ; i++ ){
-            let req3 = await pool.request()
-                .input('Selection_content', sql.NVarChar, selectionArray[i].getContent())
-                .input('Selection_count', sql.Int, 0)
-                .input('User_Id', sql.Int, users.getId())
-                .input('Topic_Id', sql.Int, insertTopicNum)
-                .query("INSERT INTO Selection (Selection_content, Selection_count, User_Id, Topic_Id) VALUES (@Selection_content, @Selection_count, @User_Id, @Topic_Id)")
-            console.log(req3);
+        for(let t = 0 ; t < voteArray.length; t++){
+            let req2 = await pool.request()
+                .input('Topic_title', sql.NVarChar, voteArray[t].topic.getTitle())
+                .input('Article_Id', sql.Int, insertPostsNum)
+                .query("INSERT INTO Topic (Topic_title, Article_Id) VALUES (@Topic_title, @Article_Id) SELECT SCOPE_IDENTITY() AS id;")
+            let insertTopicNum = req2.recordset[0].id;
+            for(let i = 0 ; i < voteArray[t].selection.length ; i++ ){
+                let req3 = await pool.request()
+                    .input('Selection_content', sql.NVarChar, voteArray[t].selection[i].getContent())
+                    .input('Selection_count', sql.Int, 0)
+                    .input('User_Id', sql.Int, users.getId())
+                    .input('Topic_Id', sql.Int, insertTopicNum)
+                    .query("INSERT INTO Selection (Selection_content, Selection_count, User_Id, Topic_Id) VALUES (@Selection_content, @Selection_count, @User_Id, @Topic_Id)")
+                console.log(req3);
+            }
         }
         return 'success';
     }catch(err){
@@ -99,5 +129,6 @@ module.exports ={
     UpdatePostDataToDB : UpdatePostDataToDB,
     DeletePostDataToDB : DeletePostDataToDB,
     GetTopicDataFromDB : GetTopicDataFromDB,
-    InsertVoteCountToDB : InsertVoteCountToDB
+    InsertVoteCountToDB : InsertVoteCountToDB,
+    GetDataBase : GetDataBase
 }

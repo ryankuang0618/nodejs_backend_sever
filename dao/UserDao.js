@@ -24,7 +24,11 @@ async function CheckLoginIsvaild(users){
             .input('User_email', sql.NVarChar, users.getEmail())
             .input('User_password', sql.NVarChar, users.getPassword())
             .query("SELECT * From [User] Where User_email = @User_email AND User_password = @User_password;")
-        return req.recordsets[0][0];
+        if(req.rowsAffected[0] == 0){
+            return 'failed';
+        }else{
+            return req.recordsets[0][0];
+        }
         
     }catch(err){
         console.log(err);

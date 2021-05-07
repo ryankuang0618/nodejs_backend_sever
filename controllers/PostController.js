@@ -10,9 +10,17 @@ exports.GetALLPostData = function(req, res) {
     })
 };
 
+exports.GetDataBase = function(req, res) {
+    sql = req.body.sql;
+    PostDao.GetDataBase(sql).then(result =>{
+        res.json(result);
+    })
+};
+
+
 exports.GetTopicData = function(req, res) {
     const articles = new Articles();
-    articles.setId(req.body.articleid);
+    articles.setId(req.query.articleid);
     PostDao.GetTopicDataFromDB(articles).then(result =>{
         res.json(result);
     })
@@ -20,24 +28,29 @@ exports.GetTopicData = function(req, res) {
 
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
-    const topics = new Topics();
     const users = new Users();
     articles.setTitle(req.body.title);
     articles.setContent(req.body.content);
     articles.setTime(Date.now());
-    topics.setTitle(req.body.topictitle);
     users.setId(req.body.userid);
+    let voteArray = [];
     let selectionArray = [];
-    for(let i = 0 ; i < req.body.selections.length; i++){
-        
-        const selections = new Selections();
-        console.log(req.body.selections[i].selectioncontent)
-        selections.setContent(req.body.selections[i].selectioncontent);
-        selectionArray.push(selections)
+    for(let t = 0 ; t < req.body.vote.length; t++){
+        const topics = new Topics();
+        topics.setTitle(req.body.vote[t].topictitle);
+        for(let i = 0 ; i < req.body.vote[t].selections.length; i++){
+            
+            const selections = new Selections();
+            selections.setContent(req.body.vote[t].selections[i].selectioncontent);
+            selectionArray.push(selections)
 
+        }
+        let voteData = {topic: topics, selection: selectionArray}
+        voteArray.push(voteData)
     }
+    console.log(voteArray);
 
-    PostDao.InsertPostDataToDB(articles, topics, users, selectionArray).then(result =>{
+    PostDao.InsertPostDataToDB(articles,  users, voteArray).then(result =>{
 
         res.end(result);
 
