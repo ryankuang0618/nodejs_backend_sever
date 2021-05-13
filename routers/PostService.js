@@ -14,6 +14,7 @@ router.post("/InsertPostData", PostController.InsertPostData);
 
 router.post("/InsertVoteCount", PostController.InsertVoteCount);
 
+router.post("/InsertComments", PostController.InsertComments);
 
 
 

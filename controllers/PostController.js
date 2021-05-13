@@ -2,6 +2,7 @@ var Articles = require('../models/Articles');
 var Topics = require('../models/Topics');
 var Selections = require('../models/Selections');
 var Users = require('../models/Users');
+var Comments = require('../models/Comments');
 var PostDao = require('../dao/PostDao');
 
 exports.GetALLPostData = function(req, res) {
@@ -65,4 +66,20 @@ exports.InsertVoteCount = function(req, res) {
         res.end(result);
 
     });
+};
+
+exports.InsertComments = function(req, res) {
+    const comments = new Comments();
+    const articles = new Articles();
+    const users = new Users();
+    comments.setContent(req.body.commetContent);
+    articles.setId(req.body.articleid);
+    users.setId(req.body.userid);
+    PostDao.InsertCommentsToDB(comments,articles,users).then(result =>{
+
+        res.end(result);
+
+    });
+    
+
 };

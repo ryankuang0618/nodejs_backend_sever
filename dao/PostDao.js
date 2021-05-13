@@ -123,6 +123,24 @@ async function DeletePostDataToDB(){
     
 };
 
+async function InsertCommentsToDB(comments,articles,users){
+    try{
+        let pool = await sql.connect(config);
+        let req = await pool.request()
+            .input("Comment_content", sql.NVarChar, comments.getContent())
+            .input("Article_Id",sql.Int, articles.getId())
+            .input("User_Id",sql.Int, users.getId())
+            .query("Insert into Comment(Comment_content,User_Id,Article_Id) VALUES (@Comment_content, @User_Id, @Article_Id)  ")
+
+        return 'seccess';
+
+    }catch(err){
+        console.log(err);
+        return 'failed';
+    }
+};
+
+
 module.exports ={
     GetPostDataFromDB : GetPostDataFromDB,
     InsertPostDataToDB : InsertPostDataToDB,
@@ -130,5 +148,6 @@ module.exports ={
     DeletePostDataToDB : DeletePostDataToDB,
     GetTopicDataFromDB : GetTopicDataFromDB,
     InsertVoteCountToDB : InsertVoteCountToDB,
-    GetDataBase : GetDataBase
+    GetDataBase : GetDataBase,
+    InsertCommentsToDB :InsertCommentsToDB
 }
