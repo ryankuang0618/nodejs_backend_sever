@@ -6,7 +6,7 @@ async function GetPostDataFromDB(){
     try{
         let pool = await sql.connect(config);
         let posts = await pool.request().query("SELECT * FROM Article");
-        return posts.recordsets;
+        return posts.recordsets[0];
 
     }catch(error){
 
