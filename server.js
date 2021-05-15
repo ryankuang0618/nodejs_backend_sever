@@ -8,9 +8,9 @@ server.use(bodyParser.json());
 const postsRoute = require('./routers/PostService');
 const usersRoute = require('./routers/UserService');
 
-server.use('/api/posts',postsRoute);
+server.use('/api/PDT/posts',postsRoute);
 
-server.use('/api/users',usersRoute);
+server.use('/api/PDT/users',usersRoute);
 
 //Iisten
 server.listen(PORT,function(){
