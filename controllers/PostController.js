@@ -20,7 +20,7 @@ exports.GetDataBase = function(req, res) {
 
 exports.GetTopicData = function(req, res) {
     const articles = new Articles();
-    articles.setId(req.query.articleid);
+    articles.setId(req.query.articleId);
     PostDao.GetTopicDataFromDB(articles).then(result =>{
         res.json(result);
     })
@@ -29,19 +29,19 @@ exports.GetTopicData = function(req, res) {
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
     const users = new Users();
-    articles.setTitle(req.body.title);
-    articles.setContent(req.body.content);
+    articles.setTitle(req.body.topicTitle);
+    articles.setContent(req.body.topicContent);
     articles.setTime(Date.now());
     users.setId(req.body.userid);
     let voteArray = [];
     let selectionArray = [];
     for(let t = 0 ; t < req.body.vote.length; t++){
         const topics = new Topics();
-        topics.setTitle(req.body.vote[t].topictitle);
+        topics.setTitle(req.body.vote[t].voteTitle);
         for(let i = 0 ; i < req.body.vote[t].selections.length; i++){
             
             const selections = new Selections();
-            selections.setContent(req.body.vote[t].selections[i].selectioncontent);
+            selections.setContent(req.body.vote[t].selections[i].selectionContent);
             selectionArray.push(selections)
 
         }
