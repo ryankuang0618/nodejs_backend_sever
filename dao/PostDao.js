@@ -41,7 +41,7 @@ async function GetTopicDataFromDB(articles){
             .query("SELECT * FROM [User] WHERE User_Id = @User_Id")
         let reqTopic = await pool.request()
                 .input('Article_Id', sql.Int, articles.getId())
-                .query("SELECT * FROM Topic  WHERE Article_Id = @Article_Id")
+                .query("SELECT * FROM Topic WHERE Article_Id = @Article_Id")
         let SelectionArray = [];
         for(let t = 0 ; t < reqTopic.recordset.length ; t ++){
             let reqSelection = await pool.request()
@@ -49,8 +49,8 @@ async function GetTopicDataFromDB(articles){
                 .query("SELECT * FROM Selection WHERE Topic_Id = @Topic_Id")
             SelectionArray.push(reqSelection.recordset)
         }
-
-        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Topic:reqTopic.recordset, Selection:SelectionArray};
+        let VoteArray = {voteTitle:reqTopic.recordset[0], voteSelection:SelectionArray[0]};
+        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:VoteArray};
         return resArray;
 
     }catch(error){
