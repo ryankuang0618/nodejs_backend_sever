@@ -3,7 +3,24 @@ var Topics = require('../models/Topics');
 var Selections = require('../models/Selections');
 var Users = require('../models/Users');
 var Comments = require('../models/Comments');
+var Boards = require('../models/Boards');
 var PostDao = require('../dao/PostDao');
+
+Date.prototype.format = function (fmt) {
+    var o = {
+      "M+": this.getMonth() + 1, //月份
+      "d+": this.getDate(), //日
+      "h+": this.getHours(), //小時
+      "m+": this.getMinutes(), //分
+      "s+": this.getSeconds(), //秒
+      "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+      "S": this.getMilliseconds() //毫秒
+    };
+    if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+    if (new RegExp("(" +  k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" +  o[k]).substr(("" + o[k]).length)));
+    return fmt;
+  }
 
 exports.GetALLPostData = function(req, res) {
     PostDao.GetPostDataFromDB().then(result =>{
@@ -30,9 +47,12 @@ exports.GetTopicData = function(req, res) {
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
     const users = new Users();
+    const boards = new Boards();
     articles.setTitle(req.body.topicTitle);
     articles.setContent(req.body.topicContent);
-    articles.setTime(Date.now());
+    var time = new Date().format("yyyy-MM-dd hh:mm:ss");
+    articles.setTime(time);
+    boards.setName(req.body.boardName);
     users.setId(req.body.userId);
     let voteArray = [];
     let selectionArray = [];
@@ -49,9 +69,8 @@ exports.InsertPostData = function(req, res) {
         let voteData = {topic: topics, selection: selectionArray}
         voteArray.push(voteData)
     }
-    console.log(voteArray);
 
-    PostDao.InsertPostDataToDB(articles,  users, voteArray).then(result =>{
+    PostDao.InsertPostDataToDB(articles,  users, voteArray, boards).then(result =>{
 
         res.end(result);
 
