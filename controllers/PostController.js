@@ -92,8 +92,8 @@ exports.InsertComments = function(req, res) {
     const articles = new Articles();
     const users = new Users();
     comments.setContent(req.body.commetContent);
-    articles.setId(req.body.articleid);
-    users.setId(req.body.userid);
+    articles.setId(req.body.articleId);
+    users.setId(req.body.userId);
     PostDao.InsertCommentsToDB(comments,articles,users).then(result =>{
 
         res.end(result);
