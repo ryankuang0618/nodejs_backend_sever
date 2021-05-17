@@ -39,18 +39,28 @@ async function GetTopicDataFromDB(articles){
         let reqUser = await pool.request()
             .input('User_Id', sql.Int, reqArticle.recordset[0].User_Id)
             .query("SELECT * FROM [User] WHERE User_Id = @User_Id")
-        let reqTopic = await pool.request()
-                .input('Article_Id', sql.Int, articles.getId())
-                .query("SELECT * FROM Topic WHERE Article_Id = @Article_Id")
-        let SelectionArray = [];
-        for(let t = 0 ; t < reqTopic.recordset.length ; t ++){
-            let reqSelection = await pool.request()
-                .input('Topic_Id', sql.Int, reqTopic.recordset[t].Topic_Id)
-                .query("SELECT * FROM Selection WHERE Topic_Id = @Topic_Id")
-            SelectionArray.push(reqSelection.recordset)
+
+        let reqTopicId = await pool.request()
+            .input('Article_Id', sql.Int, articles.getId())
+            .query("SELECT Topic_Id FROM Topic WHERE Article_Id = @Article_Id")
+        let Vote = []
+        for(let TopicId_count = 0; TopicId_count < reqTopicId.recordset.length; TopicId_count ++ ){
+            let reqTopic = await pool.request()
+                    .input('Article_Id', sql.Int, articles.getId())
+                    .input('Topic_Id', sql.Int, reqTopicId.recordset[TopicId_count].Topic_Id)
+                    .query("SELECT * FROM Topic WHERE Article_Id = @Article_Id AND Topic_Id = @Topic_Id")
+            let SelectionArray = [];
+            for(let t = 0 ; t < reqTopic.recordset.length ; t ++){
+                let reqSelection = await pool.request()
+                    .input('Topic_Id', sql.Int, reqTopicId.recordset[TopicId_count].Topic_Id)
+                    .query("SELECT * FROM Selection WHERE Topic_Id = @Topic_Id")
+                SelectionArray.push(reqSelection.recordset)
+            }
+            let VoteArray = {voteTitle:reqTopic.recordset[0], voteSelection:SelectionArray[0]};
+            Vote.push(VoteArray);
         }
-        let VoteArray = {voteTitle:reqTopic.recordset[0], voteSelection:SelectionArray[0]};
-        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:VoteArray};
+        
+        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:Vote};
         return resArray;
 
     }catch(error){
