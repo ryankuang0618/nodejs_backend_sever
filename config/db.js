@@ -1,7 +1,7 @@
 const config = {
     user:'sa',
     password:'dj;4y7cj06',
-    server:'DESKTOP-0H89BJT\\SQLEXPRESS_RYAN',  
+    server:'ryankuang.ddns.net',  
     database:'PDT',
     port:1433,
     options: {

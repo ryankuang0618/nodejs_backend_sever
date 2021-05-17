@@ -32,7 +32,7 @@ exports.InsertPostData = function(req, res) {
     articles.setTitle(req.body.topicTitle);
     articles.setContent(req.body.topicContent);
     articles.setTime(Date.now());
-    users.setId(req.body.userid);
+    users.setId(req.body.userId);
     let voteArray = [];
     let selectionArray = [];
     for(let t = 0 ; t < req.body.vote.length; t++){
