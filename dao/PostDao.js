@@ -62,7 +62,7 @@ async function GetTopicDataFromDB(articles){
 
 };
 
-async function InsertPostDataToDB(articles, users, voteArray){
+async function InsertPostDataToDB(articles, users, voteArray, boards){
     try{
         //console.log(selectionArray);
         let pool = await sql.connect(config);
@@ -70,8 +70,10 @@ async function InsertPostDataToDB(articles, users, voteArray){
             .input('Article_title', sql.NVarChar, articles.getTitle())
             .input('Article_content', sql.NVarChar, articles.getContent())
             .input('Article_time', sql.NVarChar, articles.getTime())
+            .input('Board_name', sql.NVarChar, boards.getName())
             .input('User_Id', sql.Int, users.getId())
-            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id) VALUES (@Article_title, @Article_content, @Article_time, @User_Id) SELECT SCOPE_IDENTITY() AS id;")
+            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id, Board_name) VALUES (@Article_title, @Article_content, @Article_time, @User_Id, @Board_name) SELECT SCOPE_IDENTITY() AS id;")
+        console.log(req)
         let insertPostsNum = req.recordset[0].id;
         for(let t = 0 ; t < voteArray.length; t++){
             let req2 = await pool.request()
@@ -86,7 +88,6 @@ async function InsertPostDataToDB(articles, users, voteArray){
                     .input('User_Id', sql.Int, users.getId())
                     .input('Topic_Id', sql.Int, insertTopicNum)
                     .query("INSERT INTO Selection (Selection_content, Selection_count, User_Id, Topic_Id) VALUES (@Selection_content, @Selection_count, @User_Id, @Topic_Id)")
-                console.log(req3);
             }
         }
         return 'success';
