@@ -10,6 +10,8 @@ router.get("/GetTopicData", PostController.GetTopicData);
 
 router.get("/GetDataBase", PostController.GetDataBase);
 
+router.get("/GetBoard", PostController.GetBoard);
+
 router.post("/InsertPostData", PostController.InsertPostData);
 
 router.post("/InsertVoteCount", PostController.InsertVoteCount);

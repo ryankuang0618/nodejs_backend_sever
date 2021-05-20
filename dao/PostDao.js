@@ -5,7 +5,7 @@ const sql = require('mssql');
 async function GetPostDataFromDB(){
     try{
         let pool = await sql.connect(config);
-        let posts = await pool.request().query("SELECT * FROM Article");
+        let posts = await pool.request().query("SELECT * FROM Article ORDER BY Article_Id DESC");
         return posts.recordsets[0];
 
     }catch(error){
@@ -29,6 +29,21 @@ async function GetDataBase(sqll){
 
     }
 }
+
+async function GetBoardFromDB(){
+    try{
+        let pool = await sql.connect(config);
+        let boards = await pool.request().query("SELECT * FROM Board");
+        console.log("success");
+        return boards.recordsets[0];
+    }catch(error){
+
+        console.log(error);
+        return "failed";
+
+    }
+}
+GetBoardFromDB
 
 async function GetTopicDataFromDB(articles){
     try{
@@ -160,5 +175,6 @@ module.exports ={
     GetTopicDataFromDB : GetTopicDataFromDB,
     InsertVoteCountToDB : InsertVoteCountToDB,
     GetDataBase : GetDataBase,
-    InsertCommentsToDB :InsertCommentsToDB
+    InsertCommentsToDB :InsertCommentsToDB,
+    GetBoardFromDB : GetBoardFromDB
 }

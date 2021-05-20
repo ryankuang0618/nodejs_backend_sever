@@ -44,6 +44,12 @@ exports.GetTopicData = function(req, res) {
     })
 };
 
+exports.GetBoard = function(req, res) {
+    PostDao.GetBoardFromDB().then(result =>{
+        res.json(result);
+    })
+};
+
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
     const users = new Users();
