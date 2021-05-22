@@ -58,7 +58,7 @@ exports.InsertPostData = function(req, res) {
     articles.setContent(req.body.topicContent);
     var time = new Date().format("yyyy-MM-dd hh:mm:ss");
     articles.setTime(time);
-    boards.setName(req.body.boardName);
+    boards.setName(req.body.Board_name);
     users.setId(req.body.userId);
     let voteArray = [];
     let selectionArray = [];
