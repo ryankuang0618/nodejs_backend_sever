@@ -50,6 +50,16 @@ exports.GetBoard = function(req, res) {
     })
 };
 
+exports.CheckIsableVote = function(req, res){
+    const users = new Users();
+    const articles = new Articles();
+    users.setId(req.query.userId);
+    articles.setId(req.query.articleId);
+    PostDao.CheckIsableVoteFromDB(users, articles).then(result =>{
+        res.json(result);
+    })
+}
+
 exports.InsertPostData = function(req, res) {
     const articles = new Articles();
     const users = new Users();
@@ -75,7 +85,6 @@ exports.InsertPostData = function(req, res) {
         let voteData = {topic: topics, selection: selectionArray}
         voteArray.push(voteData)
     }
-
     PostDao.InsertPostDataToDB(articles,  users, voteArray, boards).then(result =>{
 
         res.end(result);
@@ -85,8 +94,12 @@ exports.InsertPostData = function(req, res) {
 
 exports.InsertVoteCount = function(req, res) {
     const selections = new Selections();
+    const users = new Users();
+    const articles = new Articles();
+    users.setId(req.body.userId);
+    articles.setId(req.body.articleId);
     selections.setId(req.body.selectionId);
-    PostDao.InsertVoteCountToDB(selections).then(result =>{
+    PostDao.InsertVoteCountToDB(selections, users, articles).then(result =>{
 
         res.end(result);
 

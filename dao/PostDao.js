@@ -43,7 +43,34 @@ async function GetBoardFromDB(){
 
     }
 }
-GetBoardFromDB
+
+async function CheckIsableVoteFromDB(users, articles){
+    try{
+        let pool = await sql.connect(config);
+        let CheckVote = await pool.request()
+                .input('User_Id', sql.Int, users.getId())
+                .input('Article_Id', sql.Int, articles.getId())
+                .query("SELECT COUNT(*) AS Count FROM VoteStatus  WHERE User_Id = @User_Id AND Article_Id = @Article_Id") 
+        console.log(CheckVote.recordset);
+        if(CheckVote.recordset[0].Count != 0 ){
+            let getSelectionId = await pool.request()
+                .input('User_Id', sql.Int, users.getId())
+                .input('Article_Id', sql.Int, articles.getId())
+                .query("SELECT Selection_Id FROM VoteStatus  WHERE User_Id = @User_Id AND Article_Id = @Article_Id") 
+            console.log(getSelectionId.recordset[0].Selection_Id);
+            return getSelectionId.recordset[0].Selection_Id;
+        }else{
+            return null;
+        }
+        
+    }catch(error){
+
+        console.log(error);
+        return "failed";
+
+    }
+}
+
 
 async function GetTopicDataFromDB(articles){
     try{
@@ -74,8 +101,11 @@ async function GetTopicDataFromDB(articles){
             let VoteArray = {voteTitle:reqTopic.recordset[0], voteSelection:SelectionArray[0]};
             Vote.push(VoteArray);
         }
+        let getComment = await pool.request()
+            .input('Article_Id', sql.Int, articles.getId())
+            .query("SELECT C.Comment_Id, C.Comment_content, C.User_Id, C.Article_Id, V.Selection_Id FROM Comment C JOIN VoteStatus V ON C.User_Id = V.User_Id WHERE C.Article_Id = @Article_Id  AND V.Article_Id =@Article_Id ORDER BY C.Comment_Id DESC")
         
-        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:Vote};
+        let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:Vote, Comment:getComment.recordset};
         return resArray;
 
     }catch(error){
@@ -124,13 +154,18 @@ async function InsertPostDataToDB(articles, users, voteArray, boards){
     
 };
 
-async function InsertVoteCountToDB(selections){
+async function InsertVoteCountToDB(selections, users, articles){
     try{
         let pool = await sql.connect(config);
         let req = await pool.request()
             .input("Selection_Id", sql.Int, selections.getId())
-            .query("Update Selection SET  Selection_count = Selection_count+1 WHERE Selection_Id = @Selection_Id")
+            .query("Update Selection SET  Selection_count = Selection_count + 1 WHERE Selection_Id = @Selection_Id")
             console.log(req);
+        let req2 =  await pool.request()
+            .input('User_Id', sql.Int, users.getId())
+            .input('Article_Id', sql.Int, articles.getId())
+            .input("Selection_Id", sql.Int, selections.getId())
+            .query("INSERT INTO VoteStatus (User_Id, Article_Id, Selection_Id) VALUES (@User_Id, @Article_Id, @Selection_Id)") 
         
         return 'success';
     }catch(err){
@@ -176,5 +211,6 @@ module.exports ={
     InsertVoteCountToDB : InsertVoteCountToDB,
     GetDataBase : GetDataBase,
     InsertCommentsToDB :InsertCommentsToDB,
-    GetBoardFromDB : GetBoardFromDB
+    GetBoardFromDB : GetBoardFromDB,
+    CheckIsableVoteFromDB : CheckIsableVoteFromDB
 }
