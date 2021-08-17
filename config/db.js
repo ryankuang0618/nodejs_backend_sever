@@ -1,5 +1,5 @@
 const config = {
-    user:'sas',
+    user:'sa',
     password:'dj;4y7cj06',
     server:'ryankuang.ddns.net',  
     database:'PDT',
