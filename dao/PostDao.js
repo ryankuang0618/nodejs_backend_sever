@@ -5,7 +5,7 @@ const sql = require('mssql');
 async function GetPostDataFromDB(){
     try{
         let pool = await sql.connect(config);
-        let posts = await pool.request().query("SELECT * FROM Article ORDER BY Article_Id DESC");
+        let posts = await pool.request().query("SELECT * FROM Article WHERE Article_status = 'true' ORDER BY Article_Id DESC");
         return posts.recordsets[0];
 
     }catch(error){
@@ -77,7 +77,7 @@ async function GetTopicDataFromDB(articles){
         let pool = await sql.connect(config);
         let reqArticle = await pool.request()
                 .input('Article_Id', sql.Int, articles.getId())
-                .query("SELECT * FROM Article  WHERE Article_Id = @Article_Id")
+                .query("SELECT * FROM Article  WHERE Article_Id = @Article_Id ")
         let reqUser = await pool.request()
             .input('User_Id', sql.Int, reqArticle.recordset[0].User_Id)
             .query("SELECT * FROM [User] WHERE User_Id = @User_Id")
@@ -103,7 +103,7 @@ async function GetTopicDataFromDB(articles){
         }
         let getComment = await pool.request()
             .input('Article_Id', sql.Int, articles.getId())
-            .query("SELECT C.Comment_Id, C.Comment_content, C.User_Id, C.Article_Id, V.Selection_Id FROM Comment C JOIN VoteStatus V ON C.User_Id = V.User_Id WHERE C.Article_Id = @Article_Id  AND V.Article_Id =@Article_Id ORDER BY C.Comment_Id DESC")
+            .query("SELECT C.Comment_Id, C.Comment_content,C.Comment_time, U.User_Name, C.Article_Id, V.Selection_Id FROM Comment C JOIN VoteStatus V ON C.User_Id = V.User_Id JOIN [User] U ON U.User_Id = C.User_Id WHERE C.Article_Id = @Article_Id  AND V.Article_Id =@Article_Id ORDER BY C.Comment_Id DESC")
         
         let resArray = {Article : reqArticle.recordset[0], User:reqUser.recordset[0], Vote:Vote, Comment:getComment.recordset};
         return resArray;
@@ -127,7 +127,7 @@ async function InsertPostDataToDB(articles, users, voteArray, boards){
             .input('Article_time', sql.NVarChar, articles.getTime())
             .input('Board_name', sql.NVarChar, boards.getName())
             .input('User_Id', sql.Int, users.getId())
-            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id, Board_name) VALUES (@Article_title, @Article_content, @Article_time, @User_Id, @Board_name) SELECT SCOPE_IDENTITY() AS id;")
+            .query("INSERT INTO Article (Article_title, Article_content, Article_time, User_Id, Board_name, Article_status) VALUES (@Article_title, @Article_content, @Article_time, @User_Id, @Board_name, 'true') SELECT SCOPE_IDENTITY() AS id;")
         console.log(req)
         let insertPostsNum = req.recordset[0].id;
         for(let t = 0 ; t < voteArray.length; t++){
@@ -180,18 +180,30 @@ async function UpdatePostDataToDB(){
     
 };
 
-async function DeletePostDataToDB(){
-    
+async function DeletePostDataToDB(articles){
+    try{
+        let pool = await sql.connect(config);
+        let req = await pool.request()
+            .input("Article_Id",sql.Int, articles.getId())
+            .query("UPDATE Article SET Article_status = 'false' WHERE Article_Id = @Article_Id")
+        return 'seccess';
+    }catch(err){ 
+        console.log(err);
+        return 'failed';
+
+    }
 };
 
 async function InsertCommentsToDB(comments,articles,users){
     try{
         let pool = await sql.connect(config);
+        console.log(comments.getTime());
         let req = await pool.request()
             .input("Comment_content", sql.NVarChar, comments.getContent())
+            .input("Comment_time", sql.NVarChar, comments.getTime())
             .input("Article_Id",sql.Int, articles.getId())
             .input("User_Id",sql.Int, users.getId())
-            .query("Insert into Comment(Comment_content,User_Id,Article_Id) VALUES (@Comment_content, @User_Id, @Article_Id)  ")
+            .query("Insert into Comment(Comment_content,User_Id,Article_Id,Comment_time) VALUES (@Comment_content, @User_Id, @Article_Id,@Comment_time)")
 
         return 'seccess';
 
@@ -201,8 +213,22 @@ async function InsertCommentsToDB(comments,articles,users){
     }
 };
 
+async function GetMyPostFromDB(users){
+    try{
+        let pool = await sql.connect(config);
+        console.log(users)
+        let req = await pool.request()
+            .input("User_Id",sql.Int, users.getId())
+            .query("SELECT * FROM Article Where User_Id = @User_Id and Article_status = 'true' ORDER BY Article_Id DESC")
 
-module.exports ={
+        return req.recordsets[0];
+    }catch(err){
+        console.log(err);
+        return("failed");
+    }
+}
+
+module.exports = {
     GetPostDataFromDB : GetPostDataFromDB,
     InsertPostDataToDB : InsertPostDataToDB,
     UpdatePostDataToDB : UpdatePostDataToDB,
@@ -212,5 +238,6 @@ module.exports ={
     GetDataBase : GetDataBase,
     InsertCommentsToDB :InsertCommentsToDB,
     GetBoardFromDB : GetBoardFromDB,
-    CheckIsableVoteFromDB : CheckIsableVoteFromDB
+    CheckIsableVoteFromDB : CheckIsableVoteFromDB,
+    GetMyPostFromDB : GetMyPostFromDB
 }

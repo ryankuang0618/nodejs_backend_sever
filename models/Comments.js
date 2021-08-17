@@ -1,6 +1,7 @@
-function Comment(Id, content, count) {       
+function Comment(Id, content, time) {       
     this.Id = Id || null;
     this.content = content  || null;
+    this.time = time || null;
 }
 
 Comment.prototype.getId = function() {
@@ -17,6 +18,14 @@ Comment.prototype.getContent = function() {
 
 Comment.prototype.setContent = function(content) {
     this.content = content;
+}
+
+Comment.prototype.getTime = function() {
+    return this.time;
+}
+
+Comment.prototype.setTime = function(time) {
+    this.time = time;
 }
 
 

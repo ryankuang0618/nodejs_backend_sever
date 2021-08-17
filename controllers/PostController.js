@@ -110,6 +110,8 @@ exports.InsertComments = function(req, res) {
     const comments = new Comments();
     const articles = new Articles();
     const users = new Users();
+    var time = new Date().format("yyyy-MM-dd hh:mm:ss");
+    comments.setTime(time);
     comments.setContent(req.body.commetContent);
     articles.setId(req.body.articleId);
     users.setId(req.body.userId);
@@ -118,6 +120,25 @@ exports.InsertComments = function(req, res) {
         res.end(result);
 
     });
-    
-
 };
+
+
+exports.DeletePostData = function(req, res) {
+    const articles = new Articles();
+    articles.setId(req.body.articleId);
+    PostDao.DeletePostDataToDB(articles).then(result =>{
+
+        res.end(result);
+
+    });
+}
+
+exports.GetMyPost = function(req, res) {
+    const users = new Users();
+    users.setId(req.query.userId);
+    PostDao.GetMyPostFromDB(users).then(result =>{
+
+        res.json(result);
+
+    });
+} 
