@@ -8,7 +8,7 @@ exports.Notification = function(req, res) {
         credential: admin.credential.cert(serviceAccount)
         });
 
-    var registrationToken = 'bbcdddb2066d59324f653c6f476dcd9a96c15f12d0a85e884a8cbaf6f4e81b90';
+    var registrationToken = 'c_wIKa5GvEY5jPf_nr7-fU:APA91bHWfjVs5NNASPZ5kwsGtpFEDztXRq5DeI-u0_N2ELfU06LkWFhn6Zu5SSPDKlgFR7DDt-Nd-17EZBJWP9nXChK7bsx3XwgQsEPQCoDjknClNp8futb5_d9aWsapxd2VJWMZ1-9a';
     var message = {
     data: {
         score: '850',
