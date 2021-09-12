@@ -9,10 +9,13 @@ server.use(bodyParser.json());
 //Import Routes
 const postsRoute = require('./routers/PostService');
 const usersRoute = require('./routers/UserService');
+const notificationRoute = require('./routers/NotidicationService')
 
 server.use('/api/PDT/posts',postsRoute);
 
 server.use('/api/PDT/users',usersRoute);
+
+server.use('/api/PDT/notifications',notificationRoute)
 
 //Iisten
 server.listen(PORT,function(){

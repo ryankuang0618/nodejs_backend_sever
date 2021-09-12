@@ -1,8 +1,9 @@
-function User(Id, name, email, password) {       
+function User(Id, name, email, password,token) {       
     this.Id = Id || null;
     this.name = name  || null;
     this.email = email  || null;
     this.password = password  || null;
+    this.token = token || null;
 }
 
 User.prototype.getId = function() {
@@ -35,6 +36,14 @@ User.prototype.getPassword = function() {
 
 User.prototype.setPassword = function(password) {
     this.password = password;
+}
+
+User.prototype.setFirebaseToken = function(token){
+    this.token = token;
+}
+
+User.prototype.getFirebaseToken = function(){
+    return this.token; 
 }
 
 module.exports = User;     // Export the User function as it is
